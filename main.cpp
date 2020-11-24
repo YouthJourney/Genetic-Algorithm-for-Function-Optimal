@@ -2,42 +2,44 @@
 #include <ctime>
 using namespace std;
 
+//ä½¿ç”¨é—ä¼ ç®—æ³•è®¡ç®—å‡½æ•°æœ€å¤§å€¼ï¼Œä»¥å‡½æ•° y=xsin(10Ï€*x)+2.0ä¸ºä¾‹ã€‚
+
 const double pi = 3.14159265;
-const double pcross = 0.7;//½»²æ¸ÅÂÊ
-const double pmutate = 0.001;//±äÒì¸ÅÂÊ
-const int len = 22;//22Î»µÄÈ¾É«Ìå
-const int daishu = 500;//¸üµü´úÊı
-const int Size = 500;//ÖÖÈº¹æÄ£
-double bestval;//ÊÊÓ¦Öµ×î´óÖµ
-typedef struct node {//È¾É«Ìå½á¹¹Ìå
+const double pcross = 0.7;//äº¤å‰æ¦‚ç‡
+const double pmutate = 0.001;//å˜å¼‚æ¦‚ç‡
+const int len = 22;//22ä½çš„æŸ“è‰²ä½“
+const int daishu = 500;//æ›´è¿­ä»£æ•°
+const int Size = 500;//ç§ç¾¤è§„æ¨¡
+double bestval;//é€‚åº”å€¼æœ€å¤§å€¼
+typedef struct node {//æŸ“è‰²ä½“ç»“æ„ä½“
 	bool chromo[len];
 }node;
-node bestchromo;//¼ÇÂ¼×îÓÅ¸öÌå
-node group[Size];//¼ÇÂ¼ÖÖÈºÖĞµÄ¸öÌåµÄÊı×é
-node temp[Size];//¼ÇÂ¼ÖÖÈºÖĞµÄ¸öÌåµÄÁÙÊ±Êı×é
+node bestchromo;//è®°å½•æœ€ä¼˜ä¸ªä½“
+node group[Size];//è®°å½•ç§ç¾¤ä¸­çš„ä¸ªä½“çš„æ•°ç»„
+node temp[Size];//è®°å½•ç§ç¾¤ä¸­çš„ä¸ªä½“çš„ä¸´æ—¶æ•°ç»„
 
-void gouzao(node& c) {//¶Ôµ¥¸öÈ¾É«ÌåËæ»ú¸³Öµ
+void gouzao(node& c) {//å¯¹å•ä¸ªæŸ“è‰²ä½“éšæœºèµ‹å€¼
 	for (int i = 0; i < len; i++) {
 		c.chromo[i] = rand() % 2;
 	}
 }
-void decode(node& c, double& x) {//¶ş½øÖÆ½âÂë²Ù×÷
-	double num = 4194394;//¼´2µÄ22´Î·½
+void decode(node& c, double& x) {//äºŒè¿›åˆ¶è§£ç æ“ä½œ
+	double num = 4194394;//å³2çš„22æ¬¡æ–¹
 	double tem = 0;
 	for (int i = 0; i < len; i++) {
 		tem += c.chromo[i] * pow(2, i);
 	}
 	x = (3 / num * tem) - 1;
 }
-double f(double x) {//Ä¿±êº¯Êı
+double f(double x) {//ç›®æ ‡å‡½æ•°
 	return x * sin(10 * pi * x) + 2.0;
 }
-double fitness(node& c) {//ÊÊÓ¦¶Èº¯Êı
+double fitness(node& c) {//é€‚åº”åº¦å‡½æ•°
 	double x;
 	decode(c, x);
 	return f(x);
 }
-void cross(node& c1, node& c2, int point) {//½»²æ²Ù×÷
+void cross(node& c1, node& c2, int point) {//äº¤å‰æ“ä½œ
 	node c3 = c1;
 	for (int i = 0; i < len - point; i++) {
 		c1.chromo[point + i] = c2.chromo[point + i];
@@ -46,14 +48,14 @@ void cross(node& c1, node& c2, int point) {//½»²æ²Ù×÷
 		c2.chromo[point + j] = c3.chromo[point + j];
 	}
 }
-void mutate(node& c) {//±äÒì²Ù×÷
+void mutate(node& c) {//å˜å¼‚æ“ä½œ
 	int i = rand() % len;
 	c.chromo[i] = !c.chromo[i];
 }
-double inline rand0() {//²úÉú0µ½1µÄËæ»úĞ¡Êı
+double inline rand0() {//äº§ç”Ÿ0åˆ°1çš„éšæœºå°æ•°
 	return rand() % 10000 / 10000.0;
 }
-void select(node group[Size]) {//Ñ¡Ôñ²Ù×÷
+void select(node group[Size]) {//é€‰æ‹©æ“ä½œ
 	double fitnessval[Size];
 	double sum = 0;
 	double avgfitness[Size];
@@ -61,17 +63,17 @@ void select(node group[Size]) {//Ñ¡Ôñ²Ù×÷
 	for (int i = 0; i < Size; i++) {
 		fitnessval[i] = fitness(group[i]);
 	}
-	for (int i = 0; i < Size; i++) {//ÊÊÓ¦¶È×ÜºÍ
+	for (int i = 0; i < Size; i++) {//é€‚åº”åº¦æ€»å’Œ
 		sum += fitnessval[i];
 	}
 	for (int i = 0; i < Size; i++) {
 		avgfitness[i] = fitnessval[i] / sum;
 	}
-	for (int i = 1; i < Size; i++) {//ÊÊÓ¦¶ÈÀÛ¼Ó
+	for (int i = 1; i < Size; i++) {//é€‚åº”åº¦ç´¯åŠ 
 		avgfitness[i] += avgfitness[i - 1];
 	}
-	for (int i = 0; i < Size; i++) {//ÂÖÅÌ¶ÄÑ¡Ôñ·¨
-		double rannum = rand0();//²úÉú0µ½1Ëæ»úÊı
+	for (int i = 0; i < Size; i++) {//è½®ç›˜èµŒé€‰æ‹©æ³•
+		double rannum = rand0();//äº§ç”Ÿ0åˆ°1éšæœºæ•°
 		int j;
 		for (j = 0; j < Size - 1; j++) {
 			if (rannum < avgfitness[j]) {
@@ -83,14 +85,14 @@ void select(node group[Size]) {//Ñ¡Ôñ²Ù×÷
 			id[i] = j;
 		}
 	}
-	for (int i = 0; i < Size; i++) {//½«ĞÂ¸öÌåÌæ»»¾É¸öÌå
+	for (int i = 0; i < Size; i++) {//å°†æ–°ä¸ªä½“æ›¿æ¢æ—§ä¸ªä½“
 		temp[i] = group[i];
 	}
 	for (int i = 0; i < Size; i++) {
 		group[i] = temp[id[i]];
 	}
 }
-int getBest(node group[Size], double& x, double& number) {//È¡µÃ×îÓÅ¸öÌå¶ÔÓ¦µÄÎ»ÖÃ
+int getBest(node group[Size], double& x, double& number) {//å–å¾—æœ€ä¼˜ä¸ªä½“å¯¹åº”çš„ä½ç½®
 	double fitnessval[Size];
 	for (int i = 0; i < Size; i++) {
 		fitnessval[i] = fitness(group[i]);
@@ -105,15 +107,15 @@ int getBest(node group[Size], double& x, double& number) {//È¡µÃ×îÓÅ¸öÌå¶ÔÓ¦µÄÎ»
 	number = f(x);
 	return id;
 }
-void GA(double& x, double& number) {//ÒÅ´«Ëã·¨Á÷³Ì
+void GA(double& x, double& number) {//é—ä¼ ç®—æ³•æµç¨‹
 	for (int i = 0; i < Size; i++) {
 		gouzao(group[i]);
 	}
 	bestchromo = group[getBest(group, x, bestval)];
 	for (int i = 0; i < daishu; i++) {
-		select(group);//Ñ¡Ôñ²Ù×÷
+		select(group);//é€‰æ‹©æ“ä½œ
 		int p = rand() % len;
-		for (int j = 0, pre = -1; j < Size; j++) {//¸ù¾İ¸ÅÂÊ½»²æ		
+		for (int j = 0, pre = -1; j < Size; j++) {//æ ¹æ®æ¦‚ç‡äº¤å‰		
 			if (rand0() < pcross) {
 				if (pre == -1)
 					pre = j;
@@ -123,17 +125,17 @@ void GA(double& x, double& number) {//ÒÅ´«Ëã·¨Á÷³Ì
 				}
 			}
 		}
-		for (int k = 0, pre = -1; k < Size; k++) {//¸ù¾İ¸ÅÂÊ½øĞĞ±äÒì
+		for (int k = 0, pre = -1; k < Size; k++) {//æ ¹æ®æ¦‚ç‡è¿›è¡Œå˜å¼‚
 			if ((rand0() < pmutate)) {
 				mutate(group[k]);
 			}
 		}
 		getBest(group, x, number);
-		cout << "µÚ" << i + 1 << "´ú" << "×îÓÅxÖµÎª:" << x << "º¯ÊıÖµÎª" << f(x) << endl; //½á¹ûµÄÊä³ö
+		cout << "ç¬¬" << i + 1 << "ä»£" << "æœ€ä¼˜xå€¼ä¸º:" << x << "å‡½æ•°å€¼ä¸º" << f(x) << endl; //ç»“æœçš„è¾“å‡º
 	}
 }
 int main() {
-	srand((unsigned)time(0));//²úÉúËæ»úÊıÖÖ×Ó
+	srand((unsigned)time(0));//äº§ç”Ÿéšæœºæ•°ç§å­
 	double x;
 	double max;
 	GA(x, max);
